@@ -4,16 +4,19 @@ from rest_framework.response import Response
 from rest_framework import status
 from .renderers import UserJSONRenderer
 
+from .backends import JWTAuthentication
 from .serializers import ClientRegistrationSerializer, WriterRegistrationSerializer, UserLoginSerializer
 
 
 class ClientRegistration(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = ClientRegistrationSerializer
+    authentication_classes = [JWTAuthentication]
  
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
+        print('here he is', request.user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
